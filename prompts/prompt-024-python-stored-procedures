@@ -1,4 +1,4 @@
-create a files called stored-procedures.sql and write the code to create all the 
+create a file called stored-procedures.sql and write the code to create all the 
 stored procedures needed to get data in and out of the database
 such that all app code uses stored procedures and not direct SQL in the app code.
 
