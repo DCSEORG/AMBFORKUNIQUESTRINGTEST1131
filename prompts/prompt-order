@@ -16,7 +16,6 @@ prompt-009-create-genai-resources,
 prompt-010-add-chat-ui,
 prompt-020-model-function-calling,
 prompt-018-extra-genai-instructions,
-prompt-003-combined-genai-functions,
 prompt-019-chatui-deploy-file,
 prompt-011-azure-services-diagram,
 prompt-023-deployment-order-considerations
