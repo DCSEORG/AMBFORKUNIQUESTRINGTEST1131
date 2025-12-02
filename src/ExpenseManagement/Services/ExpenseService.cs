@@ -214,7 +214,7 @@ public class ExpenseService : IExpenseService
             using var command = new SqlCommand("EXEC sp_CreateExpense @UserId, @CategoryId, @AmountMinor, @ExpenseDate, @Description", connection);
             command.Parameters.AddWithValue("@UserId", request.UserId);
             command.Parameters.AddWithValue("@CategoryId", request.CategoryId);
-            command.Parameters.AddWithValue("@AmountMinor", (int)(request.Amount * 100));
+            command.Parameters.AddWithValue("@AmountMinor", (int)Math.Round(request.Amount * 100));
             command.Parameters.AddWithValue("@ExpenseDate", request.ExpenseDate);
             command.Parameters.AddWithValue("@Description", (object?)request.Description ?? DBNull.Value);
             

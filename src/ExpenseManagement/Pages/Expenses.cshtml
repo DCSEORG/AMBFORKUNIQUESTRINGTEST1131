@@ -77,7 +77,7 @@
                             <td>@expense.ExpenseDate.ToString("dd/MM/yyyy")</td>
                             <td>@expense.CategoryName</td>
                             <td>@expense.AmountFormatted</td>
-                            <td><span class="status-badge status-@expense.StatusName?.ToLower()">@expense.StatusName</span></td>
+                            <td><span class="status-badge status-@IndexModel.GetSafeStatusCssClass(expense.StatusName)">@expense.StatusName</span></td>
                             <td>@expense.Description</td>
                             <td>
                                 @if (expense.StatusName == "Draft")

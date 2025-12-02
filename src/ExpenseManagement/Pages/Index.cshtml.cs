@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ExpenseManagement.Models;
 using ExpenseManagement.Services;
+using System.Text.RegularExpressions;
 
 namespace ExpenseManagement.Pages;
 
@@ -8,6 +9,7 @@ public class IndexModel : PageModel
 {
     private readonly IExpenseService _expenseService;
     private readonly ILogger<IndexModel> _logger;
+    private static readonly Regex SafeCssClassRegex = new(@"^[a-zA-Z0-9-_]+$", RegexOptions.Compiled);
 
     public List<Expense> RecentExpenses { get; set; } = new();
     public int TotalExpenses { get; set; }
@@ -22,6 +24,15 @@ public class IndexModel : PageModel
     {
         _expenseService = expenseService;
         _logger = logger;
+    }
+
+    public static string GetSafeStatusCssClass(string? statusName)
+    {
+        if (string.IsNullOrEmpty(statusName))
+            return "unknown";
+        
+        var sanitized = statusName.ToLowerInvariant();
+        return SafeCssClassRegex.IsMatch(sanitized) ? sanitized : "unknown";
     }
 
     public async Task OnGetAsync()

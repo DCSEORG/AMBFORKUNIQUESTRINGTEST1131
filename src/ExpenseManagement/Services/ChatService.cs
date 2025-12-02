@@ -278,7 +278,11 @@ Be helpful, concise, and proactive in suggesting actions the user might want to 
                     var userId = args.RootElement.GetProperty("userId").GetInt32();
                     var categoryId = args.RootElement.GetProperty("categoryId").GetInt32();
                     var amount = args.RootElement.GetProperty("amount").GetDecimal();
-                    var expenseDate = DateTime.Parse(args.RootElement.GetProperty("expenseDate").GetString()!);
+                    var expenseDateStr = args.RootElement.GetProperty("expenseDate").GetString()!;
+                    if (!DateTime.TryParse(expenseDateStr, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var expenseDate))
+                    {
+                        expenseDate = DateTime.UtcNow.Date;
+                    }
                     var description = args.RootElement.TryGetProperty("description", out var desc) ? desc.GetString() : null;
                     var newId = await _expenseService.CreateExpenseAsync(new CreateExpenseRequest
                     {
