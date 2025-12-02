@@ -1,0 +1,101 @@
+@page
+@model ExpenseManagement.Pages.ExpensesModel
+@{
+    ViewData["Title"] = "My Expenses";
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="error-banner">
+        <div class="error-content">
+            <strong>⚠️ Error:</strong> @Model.ErrorMessage
+            @if (!string.IsNullOrEmpty(Model.ErrorDetails))
+            {
+                <div class="error-details">@Model.ErrorDetails</div>
+            }
+        </div>
+    </div>
+}
+
+<div class="dashboard">
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <nav>
+            <a href="/Index" class="nav-link">📊 Dashboard</a>
+            <a href="/Expenses" class="nav-link active">📝 My Expenses</a>
+            <a href="/AddExpense" class="nav-link">➕ Add Expense</a>
+            <a href="/Approve" class="nav-link">✅ Approve Expenses</a>
+            <a href="/Chat" class="nav-link">💬 AI Assistant</a>
+            <a href="/swagger" class="nav-link">📚 API Docs</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <h1>My Expenses</h1>
+        
+        <form method="get" class="filter-form">
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select name="statusFilter" id="statusFilter" class="form-control">
+                    <option value="">All</option>
+                    @foreach (var status in Model.Statuses)
+                    {
+                        <option value="@status.StatusName" selected="@(Model.StatusFilter == status.StatusName)">@status.StatusName</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Category:</label>
+                <select name="categoryFilter" id="categoryFilter" class="form-control">
+                    <option value="">All</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.CategoryName" selected="@(Model.CategoryFilter == category.CategoryName)">@category.CategoryName</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="/Expenses" class="btn btn-secondary">Clear</a>
+        </form>
+        
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var expense in Model.Expenses)
+                    {
+                        <tr>
+                            <td>@expense.ExpenseDate.ToString("dd/MM/yyyy")</td>
+                            <td>@expense.CategoryName</td>
+                            <td>@expense.AmountFormatted</td>
+                            <td><span class="status-badge status-@expense.StatusName?.ToLower()">@expense.StatusName</span></td>
+                            <td>@expense.Description</td>
+                            <td>
+                                @if (expense.StatusName == "Draft")
+                                {
+                                    <form method="post" asp-page-handler="Submit" style="display:inline;">
+                                        <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                        <button type="submit" class="btn btn-small btn-primary">Submit</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="/AddExpense" class="btn btn-primary">➕ Add New Expense</a>
+        </div>
+    </div>
+</div>
