@@ -1,0 +1,167 @@
+@page
+@model ExpenseManagement.Pages.ChatModel
+@{
+    ViewData["Title"] = "AI Assistant";
+}
+
+<div class="dashboard">
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <nav>
+            <a href="/Index" class="nav-link">📊 Dashboard</a>
+            <a href="/Expenses" class="nav-link">📝 My Expenses</a>
+            <a href="/AddExpense" class="nav-link">➕ Add Expense</a>
+            <a href="/Approve" class="nav-link">✅ Approve Expenses</a>
+            <a href="/Chat" class="nav-link active">💬 AI Assistant</a>
+            <a href="/swagger" class="nav-link">📚 API Docs</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <h1>AI Assistant</h1>
+        <p class="subtitle">Ask questions about your expenses using natural language</p>
+        
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message assistant">
+                    <div class="message-content">
+                        Hello! I'm your AI assistant for the Expense Management System. I can help you:
+                        <ul>
+                            <li>List and filter your expenses</li>
+                            <li>Create new expense entries</li>
+                            <li>Check pending approvals</li>
+                            <li>Approve or reject expenses (as a manager)</li>
+                        </ul>
+                        How can I assist you today?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" class="chat-input" 
+                       placeholder="Type your message..." 
+                       onkeypress="if(event.key === 'Enter') sendMessage()" />
+                <button onclick="sendMessage()" class="btn btn-primary chat-send">Send</button>
+            </div>
+        </div>
+        
+        <div class="chat-examples">
+            <h3>Example questions:</h3>
+            <ul>
+                <li onclick="setMessage('Show me all my expenses')">Show me all my expenses</li>
+                <li onclick="setMessage('What expenses are pending approval?')">What expenses are pending approval?</li>
+                <li onclick="setMessage('List travel expenses')">List travel expenses</li>
+                <li onclick="setMessage('Create a new travel expense for £50')">Create a new travel expense for £50</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatHistory = [];
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function formatMessage(text) {
+        // Escape HTML first
+        let formatted = escapeHtml(text);
+        
+        // Convert markdown-style formatting
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Handle numbered lists
+        const lines = formatted.split('\n');
+        let inList = false;
+        let listType = '';
+        let result = [];
+        
+        for (let line of lines) {
+            const numberedMatch = line.match(/^\d+\.\s+(.*)$/);
+            const bulletMatch = line.match(/^[-*]\s+(.*)$/);
+            
+            if (numberedMatch) {
+                if (!inList || listType !== 'ol') {
+                    if (inList) result.push(`</${listType}>`);
+                    result.push('<ol>');
+                    inList = true;
+                    listType = 'ol';
+                }
+                result.push(`<li>${numberedMatch[1]}</li>`);
+            } else if (bulletMatch) {
+                if (!inList || listType !== 'ul') {
+                    if (inList) result.push(`</${listType}>`);
+                    result.push('<ul>');
+                    inList = true;
+                    listType = 'ul';
+                }
+                result.push(`<li>${bulletMatch[1]}</li>`);
+            } else {
+                if (inList) {
+                    result.push(`</${listType}>`);
+                    inList = false;
+                    listType = '';
+                }
+                result.push(line);
+            }
+        }
+        
+        if (inList) {
+            result.push(`</${listType}>`);
+        }
+        
+        return result.join('\n').replace(/\n/g, '<br>');
+    }
+    
+    function addMessage(role, content) {
+        const messagesDiv = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.innerHTML = formatMessage(content);
+        
+        messageDiv.appendChild(contentDiv);
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    function setMessage(text) {
+        document.getElementById('chatInput').value = text;
+    }
+    
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        
+        if (!message) return;
+        
+        input.value = '';
+        addMessage('user', message);
+        
+        chatHistory.push({ role: 'user', content: message });
+        
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, history: chatHistory })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                addMessage('assistant', result.data);
+                chatHistory.push({ role: 'assistant', content: result.data });
+            } else {
+                addMessage('assistant', result.error?.message || 'Sorry, I encountered an error.');
+            }
+        } catch (error) {
+            addMessage('assistant', 'Sorry, I couldn\'t connect to the AI service. Please check if Azure OpenAI is configured.');
+        }
+    }
+</script>

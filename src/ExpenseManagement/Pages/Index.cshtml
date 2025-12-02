@@ -1,0 +1,91 @@
+@page
+@model ExpenseManagement.Pages.IndexModel
+@{
+    ViewData["Title"] = "Expense Management System";
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="error-banner">
+        <div class="error-content">
+            <strong>⚠️ Error:</strong> @Model.ErrorMessage
+            @if (!string.IsNullOrEmpty(Model.ErrorDetails))
+            {
+                <div class="error-details">@Model.ErrorDetails</div>
+            }
+        </div>
+    </div>
+}
+
+<div class="dashboard">
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <nav>
+            <a href="/Index" class="nav-link active">📊 Dashboard</a>
+            <a href="/Expenses" class="nav-link">📝 My Expenses</a>
+            <a href="/AddExpense" class="nav-link">➕ Add Expense</a>
+            <a href="/Approve" class="nav-link">✅ Approve Expenses</a>
+            <a href="/Chat" class="nav-link">💬 AI Assistant</a>
+            <a href="/swagger" class="nav-link">📚 API Docs</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <h1>Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">@Model.TotalExpenses</div>
+                <div class="stat-label">Total Expenses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@Model.PendingCount</div>
+                <div class="stat-label">Pending Approval</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@Model.ApprovedCount</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@Model.TotalAmountFormatted</div>
+                <div class="stat-label">Total Amount</div>
+            </div>
+        </div>
+        
+        <h2>Recent Expenses</h2>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var expense in Model.RecentExpenses)
+                    {
+                        <tr>
+                            <td>@expense.ExpenseDate.ToString("dd/MM/yyyy")</td>
+                            <td>@expense.CategoryName</td>
+                            <td>@expense.AmountFormatted</td>
+                            <td><span class="status-badge status-@IndexModel.GetSafeStatusCssClass(expense.StatusName)">@expense.StatusName</span></td>
+                            <td>@expense.Description</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="/AddExpense" class="btn btn-primary">➕ Add New Expense</a>
+                <a href="/Approve" class="btn btn-secondary">✅ Review Pending</a>
+                <a href="/Chat" class="btn btn-info">💬 Ask AI Assistant</a>
+            </div>
+        </div>
+    </div>
+</div>
