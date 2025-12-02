@@ -1,0 +1,93 @@
+@page
+@model ExpenseManagement.Pages.AddExpenseModel
+@{
+    ViewData["Title"] = "Add Expense";
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="error-banner">
+        <div class="error-content">
+            <strong>⚠️ Error:</strong> @Model.ErrorMessage
+            @if (!string.IsNullOrEmpty(Model.ErrorDetails))
+            {
+                <div class="error-details">@Model.ErrorDetails</div>
+            }
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="success-banner">
+        <div class="success-content">
+            <strong>✅ Success:</strong> @Model.SuccessMessage
+        </div>
+    </div>
+}
+
+<div class="dashboard">
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <nav>
+            <a href="/Index" class="nav-link">📊 Dashboard</a>
+            <a href="/Expenses" class="nav-link">📝 My Expenses</a>
+            <a href="/AddExpense" class="nav-link active">➕ Add Expense</a>
+            <a href="/Approve" class="nav-link">✅ Approve Expenses</a>
+            <a href="/Chat" class="nav-link">💬 AI Assistant</a>
+            <a href="/swagger" class="nav-link">📚 API Docs</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <h1>Add Expense</h1>
+        
+        <div class="form-container">
+            <form method="post">
+                <div class="form-group">
+                    <label for="Amount">Amount (£):</label>
+                    <input type="number" step="0.01" min="0.01" class="form-control" id="Amount" 
+                           asp-for="Amount" required placeholder="0.00" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="ExpenseDate">Date:</label>
+                    <input type="date" class="form-control" id="ExpenseDate" 
+                           asp-for="ExpenseDate" required />
+                </div>
+                
+                <div class="form-group">
+                    <label for="CategoryId">Category:</label>
+                    <select class="form-control" id="CategoryId" asp-for="CategoryId" required>
+                        <option value="">Select a category...</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.CategoryId">@category.CategoryName</option>
+                        }
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="Description">Description:</label>
+                    <textarea class="form-control" id="Description" asp-for="Description" 
+                              rows="4" placeholder="Enter expense description..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="UserId">User:</label>
+                    <select class="form-control" id="UserId" asp-for="UserId" required>
+                        @foreach (var user in Model.Users)
+                        {
+                            <option value="@user.UserId">@user.UserName</option>
+                        }
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Submit Expense</button>
+                    <a href="/Expenses" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

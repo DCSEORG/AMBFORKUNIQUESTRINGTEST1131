@@ -1,0 +1,112 @@
+@page
+@model ExpenseManagement.Pages.ApproveModel
+@{
+    ViewData["Title"] = "Approve Expenses";
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="error-banner">
+        <div class="error-content">
+            <strong>⚠️ Error:</strong> @Model.ErrorMessage
+            @if (!string.IsNullOrEmpty(Model.ErrorDetails))
+            {
+                <div class="error-details">@Model.ErrorDetails</div>
+            }
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="success-banner">
+        <div class="success-content">
+            <strong>✅ Success:</strong> @Model.SuccessMessage
+        </div>
+    </div>
+}
+
+<div class="dashboard">
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <nav>
+            <a href="/Index" class="nav-link">📊 Dashboard</a>
+            <a href="/Expenses" class="nav-link">📝 My Expenses</a>
+            <a href="/AddExpense" class="nav-link">➕ Add Expense</a>
+            <a href="/Approve" class="nav-link active">✅ Approve Expenses</a>
+            <a href="/Chat" class="nav-link">💬 AI Assistant</a>
+            <a href="/swagger" class="nav-link">📚 API Docs</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <h1>Approve Expenses</h1>
+        <p class="subtitle">Pending expenses for review:</p>
+        
+        <form method="get" class="filter-form">
+            <div class="filter-group">
+                <label for="filter">Filter:</label>
+                <input type="text" name="filter" id="filter" class="form-control" 
+                       value="@Model.Filter" placeholder="Search expenses..." />
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="/Approve" class="btn btn-secondary">Clear</a>
+        </form>
+        
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>User</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var expense in Model.PendingExpenses)
+                    {
+                        <tr>
+                            <td>@expense.ExpenseDate.ToString("dd/MM/yyyy")</td>
+                            <td>@expense.CategoryName</td>
+                            <td>@expense.AmountFormatted</td>
+                            <td>@expense.UserName</td>
+                            <td>@expense.Description</td>
+                            <td class="action-cell">
+                                <form method="post" asp-page-handler="Approve" style="display:inline;">
+                                    <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                    <input type="hidden" name="reviewerId" value="@Model.ReviewerId" />
+                                    <button type="submit" class="btn btn-small btn-success">Approve</button>
+                                </form>
+                                <form method="post" asp-page-handler="Reject" style="display:inline;">
+                                    <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                    <input type="hidden" name="reviewerId" value="@Model.ReviewerId" />
+                                    <button type="submit" class="btn btn-small btn-danger">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.PendingExpenses.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="no-data">No pending expenses to review</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="form-group" style="margin-top: 20px;">
+            <label for="reviewerSelect">Acting as Manager:</label>
+            <select id="reviewerSelect" class="form-control" style="max-width: 300px;" 
+                    onchange="window.location.href='/Approve?reviewerId=' + this.value">
+                @foreach (var manager in Model.Managers)
+                {
+                    <option value="@manager.UserId" selected="@(Model.ReviewerId == manager.UserId)">@manager.UserName</option>
+                }
+            </select>
+        </div>
+    </div>
+</div>
