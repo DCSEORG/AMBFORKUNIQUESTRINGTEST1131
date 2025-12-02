@@ -17,3 +17,5 @@ Avoid unused parameters - Remove any parameters that are declared but not used i
 API version consistency - Use the same stable API version across all related SQL resources (servers, databases, administrators, firewall rules, authentication) for consistency and compatibility.
 
 Check type availability - If Bicep warns that a resource type "does not have types available", it's a sign you're using a preview API version. Switch to the latest stable version.
+
+Also make sure to only use uniquestring() or uniqueString(resourceGroup().id) to create names for resources to deploy to azure and do not use md5sum ever.
